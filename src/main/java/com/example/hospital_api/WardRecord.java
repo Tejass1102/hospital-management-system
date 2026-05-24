@@ -3,18 +3,22 @@ package com.example.hospitalapi;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 
 @Entity
 public class WardRecord {
+
     @Id
     private int wardNo;
     private String category;
     private String patientName;
     private String doctorName;
 
-    // Accepts the date chosen in the JavaFX DatePicker
+    // Forces the backend to send and receive dates as standard strings
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate admissionDate;
 
     private boolean isActive = true;
@@ -60,19 +64,20 @@ public class WardRecord {
         this.admissionDate = admissionDate;
     }
 
-    public boolean isActive() {
+    public boolean getIsActive() {
         return isActive;
     }
 
-    public void setActive(boolean active) {
+    public void setIsActive(boolean active) {
         isActive = active;
     }
 
-    // DYNAMIC MATH: Calculates days between admission and today
+    // --- DYNAMIC MATH ---
     public int getDays() {
         if (admissionDate == null)
             return 1;
         long daysBetween = ChronoUnit.DAYS.between(admissionDate, LocalDate.now());
+        // If admitted today, or if date glitch, charge for at least 1 day
         return daysBetween <= 0 ? 1 : (int) daysBetween;
     }
 
