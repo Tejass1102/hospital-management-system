@@ -1,7 +1,5 @@
 package com.example.hospital_api;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,23 +9,12 @@ public class WardService {
     @Autowired
     private WardRepository repository;
 
-    public List<WardRecord> getAllRecords() {
-        return repository.findAll();
-    }
+    // The old math and setFee() used to be here!
+    // Since WardRecord now calculates the fee automatically based on the
+    // admission/discharge dates,
+    // this service simply acts as a safe bridge to the database.
 
-    public WardRecord saveRecord(WardRecord record) {
-        // New daily rates
-        int dailyRate = 0;
-        if ("Private".equalsIgnoreCase(record.getCategory()))
-            dailyRate = 2500;
-        else if ("General".equalsIgnoreCase(record.getCategory()))
-            dailyRate = 1000;
-        else if ("Emergency".equalsIgnoreCase(record.getCategory()))
-            dailyRate = 3500;
-
-        // Calculate Total Fee: Daily Rate * Number of Days
-        record.setFee(dailyRate * record.getDays());
-
+    public WardRecord saveWard(WardRecord record) {
         return repository.save(record);
     }
 }
