@@ -1,30 +1,45 @@
-package com.example.hospital_api;
-
-import java.util.List;
+package com.example.hospitalapi;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import java.util.List;
 
-@RestController // Marks this as an API controller [cite: 38]
+@RestController
 @RequestMapping("/api/wards")
+@CrossOrigin(origins = "*")
 public class WardController {
 
     @Autowired
-    private WardService service;
+    private WardRepository repository;
 
-    // Equivalent to your old "Load Patient Records" button
-    @GetMapping // Creates an endpoint for GET requests [cite: 39]
-    public List<WardRecord> getAllWards() {
-        return service.getAllRecords();
+    // Fetch ONLY active patients
+    @GetMapping
+    public List<WardRecord> getAllActive() {
+        return repository.findByIsActiveTrue();
     }
 
-    // Equivalent to your old "Add Record" button
     @PostMapping
-    public WardRecord addWard(@RequestBody WardRecord newRecord) {
-        return service.saveRecord(newRecord);
+    public WardRecord addPatient(@RequestBody WardRecord record) {
+        return repository.save(record);
+    }
+
+    // NEW: Update an existing patient's details
+    @PutMapping("/{wardNo}")
+    public WardRecord updatePatient(@PathVariable int wardNo, @RequestBody WardRecord updatedRecord) {
+        return repository.findById(wardNo).map(ward -> {
+            ward.setPatientName(updatedRecord.getPatientName());
+            ward.setDoctorName(updatedRecord.getDoctorName());
+            ward.setCategory(updatedRecord.getCategory());
+            return repository.save(ward);
+        }).orElseThrow(() -> new RuntimeException("Ward not found"));
+    }
+
+    // NEW: Discharge a patient (Soft Delete)
+    @PutMapping("/{wardNo}/discharge")
+    public WardRecord dischargePatient(@PathVariable int wardNo) {
+        return repository.findById(wardNo).map(ward -> {
+            ward.setActive(false); // Mark as discharged
+            return repository.save(ward);
+        }).orElseThrow(() -> new RuntimeException("Ward not found"));
     }
 }

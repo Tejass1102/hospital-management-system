@@ -1,21 +1,25 @@
-package com.example.hospital_api;
+package com.example.hospitalapi;
+
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "ward_records")
 public class WardRecord {
-
     @Id
     private int wardNo;
     private String category;
     private String patientName;
     private String doctorName;
-    private int days; // <--- NEW FIELD
-    private int fee;
 
+    // Accepts the date chosen in the JavaFX DatePicker
+    private LocalDate admissionDate;
+
+    private boolean isActive = true;
+
+    // --- GETTERS AND SETTERS ---
     public int getWardNo() {
         return wardNo;
     }
@@ -48,19 +52,38 @@ public class WardRecord {
         this.doctorName = doctorName;
     }
 
-    public int getDays() {
-        return days;
+    public LocalDate getAdmissionDate() {
+        return admissionDate;
     }
 
-    public void setDays(int days) {
-        this.days = days;
+    public void setAdmissionDate(LocalDate admissionDate) {
+        this.admissionDate = admissionDate;
+    }
+
+    public boolean isActive() {
+        return isActive;
+    }
+
+    public void setActive(boolean active) {
+        isActive = active;
+    }
+
+    // DYNAMIC MATH: Calculates days between admission and today
+    public int getDays() {
+        if (admissionDate == null)
+            return 1;
+        long daysBetween = ChronoUnit.DAYS.between(admissionDate, LocalDate.now());
+        return daysBetween <= 0 ? 1 : (int) daysBetween;
     }
 
     public int getFee() {
-        return fee;
-    }
-
-    public void setFee(int fee) {
-        this.fee = fee;
+        int rate = 0;
+        if ("Private".equals(category))
+            rate = 2500;
+        else if ("General".equals(category))
+            rate = 1000;
+        else if ("Emergency".equals(category))
+            rate = 5000;
+        return getDays() * rate;
     }
 }

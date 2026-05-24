@@ -1,7 +1,10 @@
-package com.example.hospital_api;
+package com.example.hospitalapi;
+
+import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-// By extending JpaRepository, Spring gives us save(), findAll(), etc. for free! [cite: 54, 55, 56]
 public interface WardRepository extends JpaRepository<WardRecord, Integer> {
+    // NEW: Only fetches patients who haven't been discharged
+    List<WardRecord> findByIsActiveTrue();
 }
