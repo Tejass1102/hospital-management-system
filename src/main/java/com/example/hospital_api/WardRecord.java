@@ -17,9 +17,11 @@ public class WardRecord {
     private String patientName;
     private String doctorName;
 
-    // Forces the backend to send and receive dates as standard strings
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate admissionDate;
+
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private LocalDate dischargeDate;
 
     private boolean isActive = true;
 
@@ -64,6 +66,14 @@ public class WardRecord {
         this.admissionDate = admissionDate;
     }
 
+    public LocalDate getDischargeDate() {
+        return dischargeDate;
+    }
+
+    public void setDischargeDate(LocalDate dischargeDate) {
+        this.dischargeDate = dischargeDate;
+    }
+
     public boolean getIsActive() {
         return isActive;
     }
@@ -72,12 +82,12 @@ public class WardRecord {
         isActive = active;
     }
 
-    // --- DYNAMIC MATH ---
+    // --- DYNAMIC MATH: Date From -> Date To ---
     public int getDays() {
-        if (admissionDate == null)
+        if (admissionDate == null || dischargeDate == null)
             return 1;
-        long daysBetween = ChronoUnit.DAYS.between(admissionDate, LocalDate.now());
-        // If admitted today, or if date glitch, charge for at least 1 day
+        long daysBetween = ChronoUnit.DAYS.between(admissionDate, dischargeDate);
+        // Minimum charge is 1 day, even if admitted and discharged on the same date
         return daysBetween <= 0 ? 1 : (int) daysBetween;
     }
 

@@ -21,7 +21,6 @@ public class WardController {
     @Autowired
     private WardRepository repository;
 
-    // GET: Only pull active patients for the dashboard
     @GetMapping
     public List<WardRecord> getAllActive() {
         return repository.findAll().stream()
@@ -29,30 +28,29 @@ public class WardController {
                 .collect(Collectors.toList());
     }
 
-    // POST: Add new patient
     @PostMapping
     public WardRecord addPatient(@RequestBody WardRecord record) {
-        if (record.getAdmissionDate() == null) {
+        if (record.getAdmissionDate() == null)
             record.setAdmissionDate(java.time.LocalDate.now());
-        }
+        if (record.getDischargeDate() == null)
+            record.setDischargeDate(java.time.LocalDate.now().plusDays(1));
         return repository.save(record);
     }
 
-    // PUT: Edit existing patient
     @PutMapping("/{wardNo}")
     public WardRecord updatePatient(@PathVariable int wardNo, @RequestBody WardRecord updatedRecord) {
         return repository.findById(wardNo).map(ward -> {
             ward.setPatientName(updatedRecord.getPatientName());
             ward.setDoctorName(updatedRecord.getDoctorName());
             ward.setCategory(updatedRecord.getCategory());
-            if (updatedRecord.getAdmissionDate() != null) {
+            if (updatedRecord.getAdmissionDate() != null)
                 ward.setAdmissionDate(updatedRecord.getAdmissionDate());
-            }
+            if (updatedRecord.getDischargeDate() != null)
+                ward.setDischargeDate(updatedRecord.getDischargeDate());
             return repository.save(ward);
         }).orElseThrow(() -> new RuntimeException("Ward not found"));
     }
 
-    // PUT: Soft delete (Discharge)
     @PutMapping("/{wardNo}/discharge")
     public WardRecord dischargePatient(@PathVariable int wardNo) {
         return repository.findById(wardNo).map(ward -> {
