@@ -1,4 +1,4 @@
-package com.example.hospitalapi;
+package com.example.hospital_api;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;

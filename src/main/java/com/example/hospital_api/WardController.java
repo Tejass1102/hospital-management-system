@@ -1,4 +1,4 @@
-package com.example.hospitalapi;
+package com.example.hospital_api;
 
 import java.util.List;
 import java.util.stream.Collectors;
